@@ -1,5 +1,4 @@
 import { nanoid } from "nanoid";
-import { Author } from "./author.js";
 import { BadRequestError, InternalServerError } from "../errors/errors.js";
 
 const NoteTypes = {
@@ -12,8 +11,10 @@ class Note {
 
   /**
    *
-   * @param {Author} author
+   * @param {string} id
+   * @param {string} author
    * @param {string} content
+   * @param {number} createdOn
    */
   constructor(id, author, content, createdOn) {
     if (new.target === Note) {
@@ -37,6 +38,13 @@ class Note {
 }
 
 class PersonalNote extends Note {
+  /**
+   *
+   * @param {string} id
+   * @param {string} author
+   * @param {string} content
+   * @param {number} createdOn
+   */
   constructor(id, author, content, createdOn) {
     super(id, author, content, createdOn);
     this.type = NoteTypes.PERSONAL;
@@ -44,6 +52,13 @@ class PersonalNote extends Note {
 }
 
 class WorkNote extends Note {
+  /**
+   *
+   * @param {string} id
+   * @param {string} author
+   * @param {string} content
+   * @param {number} createdOn
+   */
   constructor(id, author, content, createdOn) {
     super(id, author, content, createdOn);
     this.type = NoteTypes.WORK;
