@@ -15,8 +15,9 @@ class Note {
    * @param {string} author
    * @param {string} content
    * @param {number} createdOn
+   * @param {number} updatedOn
    */
-  constructor(id, author, content, createdOn) {
+  constructor(id, author, content, createdOn, updatedOn) {
     if (new.target === Note) {
       // To enforce that there can't be plain Note type objects, only concrete types (Personal, Work, etc.)
       throw new InternalServerError("Cannot instantiate Note");
@@ -26,6 +27,7 @@ class Note {
     this.author = author;
     this.content = content;
     this.createdOn = createdOn;
+    this.updatedOn = updatedOn;
   }
 
   static format(content) {
@@ -34,6 +36,7 @@ class Note {
 
   update(newContent) {
     this.content = Note.format(newContent);
+    this.updatedOn = Date.now();
   }
 }
 
@@ -44,9 +47,10 @@ class PersonalNote extends Note {
    * @param {string} author
    * @param {string} content
    * @param {number} createdOn
+   * @param {number} updatedOn
    */
-  constructor(id, author, content, createdOn) {
-    super(id, author, content, createdOn);
+  constructor(id, author, content, createdOn, updatedOn) {
+    super(id, author, content, createdOn, updatedOn);
     this.type = NoteTypes.PERSONAL;
   }
 }
@@ -58,9 +62,10 @@ class WorkNote extends Note {
    * @param {string} author
    * @param {string} content
    * @param {number} createdOn
+   * @param {number} updatedOn
    */
-  constructor(id, author, content, createdOn) {
-    super(id, author, content, createdOn);
+  constructor(id, author, content, createdOn, updatedOn) {
+    super(id, author, content, createdOn, updatedOn);
     this.type = NoteTypes.WORK;
   }
 }
@@ -83,12 +88,25 @@ export class NoteFactory {
 
     const noteId = nanoid();
     const createdOn = Date.now();
+    const formattedContent = Note.format(content);
 
     switch (type) {
       case NoteTypes.PERSONAL:
-        return new PersonalNote(noteId, author, content, createdOn);
+        return new PersonalNote(
+          noteId,
+          author,
+          formattedContent,
+          createdOn,
+          createdOn
+        );
       case NoteTypes.WORK:
-        return new WorkNote(noteId, author, content, createdOn);
+        return new WorkNote(
+          noteId,
+          author,
+          formattedContent,
+          createdOn,
+          createdOn
+        );
       default:
         throw new BadRequestError("Invalid note type");
     }
