@@ -16,8 +16,9 @@ class Note {
    * @param {string} content
    * @param {number} createdOn
    * @param {number} updatedOn
+   * @param {boolean} isDeleted
    */
-  constructor(id, author, content, createdOn, updatedOn) {
+  constructor(id, author, content, createdOn, updatedOn, isDeleted) {
     if (new.target === Note) {
       // To enforce that there can't be plain Note type objects, only concrete types (Personal, Work, etc.)
       throw new InternalServerError("Cannot instantiate Note");
@@ -28,6 +29,7 @@ class Note {
     this.content = content;
     this.createdOn = createdOn;
     this.updatedOn = updatedOn;
+    this.isDeleted = isDeleted;
   }
 
   static format(content) {
@@ -37,6 +39,10 @@ class Note {
   update(newContent) {
     this.content = Note.format(newContent);
     this.updatedOn = Date.now();
+  }
+
+  delete() {
+    this.isDeleted = true;
   }
 }
 
@@ -48,9 +54,10 @@ class PersonalNote extends Note {
    * @param {string} content
    * @param {number} createdOn
    * @param {number} updatedOn
+   * @param {boolean} isDeleted
    */
-  constructor(id, author, content, createdOn, updatedOn) {
-    super(id, author, content, createdOn, updatedOn);
+  constructor(id, author, content, createdOn, updatedOn, isDeleted) {
+    super(id, author, content, createdOn, updatedOn, isDeleted);
     this.type = NoteTypes.PERSONAL;
   }
 }
@@ -63,9 +70,10 @@ class WorkNote extends Note {
    * @param {string} content
    * @param {number} createdOn
    * @param {number} updatedOn
+   * @param {boolean} isDeleted
    */
-  constructor(id, author, content, createdOn, updatedOn) {
-    super(id, author, content, createdOn, updatedOn);
+  constructor(id, author, content, createdOn, updatedOn, isDeleted) {
+    super(id, author, content, createdOn, updatedOn, isDeleted);
     this.type = NoteTypes.WORK;
   }
 }
@@ -97,7 +105,8 @@ export class NoteFactory {
           author,
           formattedContent,
           createdOn,
-          createdOn
+          createdOn,
+          false
         );
       case NoteTypes.WORK:
         return new WorkNote(
@@ -105,7 +114,8 @@ export class NoteFactory {
           author,
           formattedContent,
           createdOn,
-          createdOn
+          createdOn,
+          false
         );
       default:
         throw new BadRequestError("Invalid note type");
