@@ -1,5 +1,5 @@
 import * as bcrypt from "bcrypt";
-import * as jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { UnauthorizedError } from "../errors/errors.js";
 import { UserRepository } from "./user.js";
 
@@ -45,10 +45,6 @@ export class AuthenticationService {
    * @throws {UnauthorizedError} If the token is invalid.
    */
   verify(token) {
-    const isVerified = jwt.verify(token, process.env.TOKEN_SECRET);
-
-    if (!isVerified) {
-      throw new UnauthorizedError("Invalid token.");
-    }
+    return jwt.verify(token, process.env.TOKEN_SECRET);
   }
 }

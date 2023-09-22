@@ -1,5 +1,9 @@
 import { nanoid } from "nanoid";
-import { BadRequestError, InternalServerError } from "../errors/errors.js";
+import {
+  BadRequestError,
+  InternalServerError,
+  NotImplementedError,
+} from "../errors/errors.js";
 
 const NoteTypes = {
   PERSONAL: "PERSONAL",
@@ -120,5 +124,17 @@ export class NoteFactory {
       default:
         throw new BadRequestError("Invalid note type");
     }
+  }
+}
+
+export class NoteRepository {
+  constructor() {}
+
+  /**
+   *
+   * @param {Note} aNote
+   */
+  save(aNote) {
+    throw new NotImplementedError();
   }
 }
