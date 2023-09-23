@@ -24,17 +24,17 @@ export default class NoteController {
       this.getNotes.bind(this)
     );
     router.get(
-      "/:id",
+      "/:noteId",
       authGuard.canAllow.bind(authGuard),
       this.getNote.bind(this)
     );
     router.put(
-      "/:id",
+      "/:noteId",
       authGuard.canAllow.bind(authGuard),
       this.updateNote.bind(this)
     );
     router.delete(
-      "/:id",
+      "/:noteId",
       authGuard.canAllow.bind(authGuard),
       this.deleteNote.bind(this)
     );
@@ -44,32 +44,77 @@ export default class NoteController {
     this.noteRepository = noteRepository;
   }
 
-  /**
-   *
-   * @param {import("express").Request} req
-   * @param {import("express").Response} res
-   * @param {import("express").NextFunction} next
-   */
-  createNote(req, res, next) {
-    const { author, content, type } = req.body;
+  /**@type {import("express").RequestHandler} */
+  async createNote(req, res, next) {
+    try {
+      const { content, type } = req.body;
 
-    const note = NoteFactory.create(author, content, type);
+      const note = NoteFactory.create(req.user.id, content, type);
 
-    const savedNote = this.noteRepository.save(note);
+      await this.noteRepository.save(note);
 
-    return ApiResponse.with(req, res).body(savedNote).statusCode(201).send();
+      return ApiResponse.with(req, res).body(note).statusCode(201).send();
+    } catch (error) {
+      next(error);
+    }
   }
 
   /**@type {import("express").RequestHandler} */
   async getNotes(req, res, next) {
-    const notes = await this.noteRepository.findAll();
+    try {
+      const notes = await this.noteRepository.findAll(req.user.id, false);
 
-    return ApiResponse.with(req, res).body(notes).send();
+      return ApiResponse.with(req, res).body(notes).send();
+    } catch (error) {
+      next(error);
+    }
   }
 
-  getNote() {}
+  async getNote(req, res, next) {
+    try {
+      const note = await this.noteRepository.getNote(
+        req.params.noteId,
+        req.user.id,
+        false
+      );
 
-  updateNote() {}
+      return ApiResponse.with(req, res).body(note).send();
+    } catch (error) {
+      next(error);
+    }
+  }
 
-  deleteNote() {}
+  async updateNote(req, res, next) {
+    try {
+      const note = await this.noteRepository.getNote(
+        req.params.noteId,
+        req.user.id,
+        false
+      );
+
+      note.update(req.body.content);
+
+      await this.noteRepository.save(note);
+
+      return ApiResponse.with(req, res).body(note).send();
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async deleteNote(req, res, next) {
+    try {
+      const note = await this.noteRepository.findNote(req.params.noteId);
+
+      if (note) {
+        note.delete();
+      }
+
+      await this.noteRepository.save(note);
+
+      return ApiResponse.with(req, res).statusCode(204).send();
+    } catch (error) {
+      next(error);
+    }
+  }
 }

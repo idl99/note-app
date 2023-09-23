@@ -24,7 +24,10 @@ export default class AuthGuard {
     }
 
     try {
-      this.authenticationService.verify(token);
+      const payload = this.authenticationService.verify(token);
+
+      req.user = payload.user;
+
       next();
     } catch (error) {
       next(new UnauthorizedError(error.message, error));

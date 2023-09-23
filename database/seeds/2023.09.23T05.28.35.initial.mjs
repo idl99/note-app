@@ -19,7 +19,7 @@ export const down = async ({ context: { database } }) => {
   const testUser2 = await userRepository.findByEmail("testuser2@abc.com");
   const noteRepository = new NoteRepository(database);
 
-  await noteRepository.delete({ author: [testUser1.id, testUser2.id] });
+  await noteRepository.deleteByAuthors([testUser1.id, testUser2.id]);
   await userRepository.delete({ id: testUser1.id });
   await userRepository.delete({ id: testUser2.id });
 

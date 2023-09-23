@@ -1,5 +1,5 @@
 import { nanoid } from "nanoid";
-import { BadRequestError } from "../errors/errors.js";
+import { BadRequestError, NotFoundError } from "../errors/errors.js";
 import Database from "../infra/db.js";
 import { NoteModel, NoteSchema } from "./noteModel.js";
 
@@ -119,12 +119,66 @@ export class NoteRepository {
     });
   }
 
-  async findAll(isDeleted = false) {
-    const noteDTOs = await this._notesModel.findAll({
-      where: { isDeleted },
-    });
+  async findAll(author = null, isDeleted = null) {
+    const options = {};
+    const where = {};
+
+    if (author != null) {
+      where.author = author;
+    }
+
+    if (isDeleted != null) {
+      where.isDeleted = isDeleted;
+    }
+
+    const areAnyFiltersApplied = Object.keys(where).length > 0;
+    if (areAnyFiltersApplied) {
+      options.where = where;
+    }
+
+    const noteDTOs = await this._notesModel.findAll(options);
 
     return noteDTOs.map((noteDTO) => NoteModel.toEntity(noteDTO));
+  }
+
+  async findNote(id, author = null, isDeleted = null) {
+    const options = { where: { id } };
+
+    if (author != null) {
+      options.where.author = author;
+    }
+
+    if (isDeleted != null) {
+      options.where.isDeleted = isDeleted;
+    }
+
+    const noteDTO = await this._notesModel.findOne(options);
+
+    if (!noteDTO) {
+      return null;
+    }
+
+    return NoteModel.toEntity(noteDTO);
+  }
+
+  async getNote(id, author = null, isDeleted = null) {
+    const options = { where: { id } };
+
+    if (author != null) {
+      options.where.author = author;
+    }
+
+    if (isDeleted != null) {
+      options.where.isDeleted = isDeleted;
+    }
+
+    const noteDTO = await this._notesModel.findOne(options);
+
+    if (!noteDTO) {
+      throw new NotFoundError(`Note not found.`);
+    }
+
+    return NoteModel.toEntity(noteDTO);
   }
 
   /**
@@ -132,11 +186,29 @@ export class NoteRepository {
    * @param {Note | CategorizedNote} aNote
    */
   async save(aNote) {
-    return await this._notesModel.create({ ...aNote });
+    await this._notesModel.upsert({ ...aNote });
+
+    return aNote;
   }
 
-  async delete(filter) {
-    await this._notesModel.destroy({ where: filter });
+  async delete(id) {
+    await this._notesModel.destroy({ where: { id } });
+
+    return;
+  }
+
+  /**
+   * Deletes notes by authors.
+   *
+   * @param {Array<string>} authors - An array of authors.
+   * @return {Promise<void>} A promise that resolves when the notes are deleted.
+   */
+  async deleteByAuthors(authors) {
+    await this._notesModel.destroy({
+      where: {
+        author: authors,
+      },
+    });
 
     return;
   }

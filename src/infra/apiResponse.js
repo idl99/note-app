@@ -27,7 +27,7 @@ export default class ApiResponse {
    * @return {ApiResponse} - The updated builder object.
    */
   body(body) {
-    this.body = body;
+    this._body = body;
 
     return this;
   }
@@ -45,9 +45,16 @@ export default class ApiResponse {
   }
 
   send() {
-    const body =
-      this._request.method === "GET" ? { data: this.body } : this.body;
+    let responsePayload = this._body;
 
-    this._response.status(this._statusCode).json(body);
+    if (this._request.method === "GET") {
+      responsePayload = { data: this._body };
+
+      if (Array.isArray(this._body)) {
+        responsePayload.count = this._body.length;
+      }
+    }
+
+    this._response.status(this._statusCode).json(responsePayload);
   }
 }

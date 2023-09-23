@@ -36,3 +36,9 @@ export class UnauthorizedError extends BaseError {
     super(message, 401, detail);
   }
 }
+
+export class NotFoundError extends BaseError {
+  constructor(message, detail) {
+    super(message, 404, detail);
+  }
+}
