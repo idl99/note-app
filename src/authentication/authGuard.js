@@ -25,6 +25,7 @@ export default class AuthGuard {
 
     try {
       this.authenticationService.verify(token);
+      next();
     } catch (error) {
       next(new UnauthorizedError(error.message, error));
     }
