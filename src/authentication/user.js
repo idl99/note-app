@@ -65,18 +65,13 @@ export class UserRepository {
   /**
    * Creates a new user.
    *
-   * @param {User} user - The user object containing user information.
+   * @param {User} aUser - The user object containing user information.
    * @return {Promise<User>} Returns the saved User object.
    */
-  async save(user) {
-    await this.userModel.create({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      password: user.password,
-    });
+  async save(aUser) {
+    await this.userModel.create({ ...aUser });
 
-    return user;
+    return aUser;
   }
 
   async delete(filter) {
@@ -96,13 +91,13 @@ export class UserFactory {
   async create(name, email, password) {
     const doesUserExist = await this.userRepository.existsByEmail(email);
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     if (doesUserExist) {
       throw new ConflictError("User exists for given email.");
     }
 
     // TODO validate and sanitize name and password
+
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     return new User(nanoid(), name, email, hashedPassword);
   }
