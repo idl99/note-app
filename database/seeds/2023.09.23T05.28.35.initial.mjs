@@ -1,19 +1,12 @@
-import {
-  User,
-  UserFactory,
-  UserRepository,
-} from "../../src/authentication/user.js";
-import Database from "../../src/infra/db.js";
-import {
-  NoteFactory,
-  NoteRepository,
-  NoteCategory,
-} from "../../src/noteTaking/note.js";
+import { nanoid } from "nanoid";
+import { User, UserRepository } from "../../src/authentication/user.js";
+import { NoteRepository, NoteCategory } from "../../src/noteTaking/note.js";
+import { Sequelize } from "sequelize";
 
-/** @type {import('umzug').MigrationFn<{ database: Database }>} */
-export const up = async ({ context: { database } }) => {
-  const testUser = await seedTestUser(database);
-  await seedTestUserNotes(database, testUser);
+/** @type {import('umzug').MigrationFn<{ sequelize: Sequelize }>} */
+export const up = async ({ context: { sequelize } }) => {
+  const testUsers = await seedTestUsers(sequelize);
+  await seedTestUserNotes(sequelize, testUsers);
 
   return;
 };
@@ -21,51 +14,93 @@ export const up = async ({ context: { database } }) => {
 /** @type {import('umzug').MigrationFn<any>} */
 export const down = async ({ context: { database } }) => {
   const userRepository = new UserRepository(database);
-  const userToDelete = await userRepository.findByEmail("test@abc.com");
+  const testUser1 = await userRepository.findByEmail("testuser1@abc.com");
+  const testUser2 = await userRepository.findByEmail("testuser2@abc.com");
   const noteRepository = new NoteRepository(database);
 
-  await noteRepository.delete({ author: userToDelete.id });
-  await userRepository.delete({ id: userToDelete.id });
+  await noteRepository.delete({ author: [testUser1.id, testUser2.id] });
+  await userRepository.delete({ id: testUser1.id });
+  await userRepository.delete({ id: testUser2.id });
 
   return;
 };
 
-async function seedTestUser(database) {
-  const userRepository = new UserRepository(database);
+/**
+ *
+ * @param {Sequelize} sequelize
+ * @returns
+ */
+async function seedTestUsers(sequelize) {
+  const queryInterface = sequelize.getQueryInterface();
 
-  const factory = new UserFactory(userRepository);
+  const testUsers = [
+    {
+      id: nanoid(),
+      name: "Test User 1",
+      email: "testuser1@abc.com",
+      password: "pass123",
+    },
+    {
+      id: nanoid(),
+      name: "Test User 2",
+      email: "testuser1@abc.com",
+      password: "pass456",
+    },
+  ];
 
-  const user = await factory.create("Test User", "test@abc.com", "pass123");
+  await queryInterface.bulkInsert("users", testUsers);
 
-  return await userRepository.save(user);
+  return testUsers;
 }
 
 /**
  *
- * @param {Database} database
- * @param {User} testUser
+ * @param {Sequelize} sequelize
+ * @param {User[]} testUsers
  */
-async function seedTestUserNotes(database, testUser) {
+async function seedTestUserNotes(sequelize, testUsers) {
   try {
-    const noteRepository = new NoteRepository(database);
+    const [testUser1, testUser2] = testUsers;
 
-    const uncategorizedNote = NoteFactory.create(testUser.id, "Test note");
+    const queryInterface = sequelize.getQueryInterface();
 
-    const personalNote = NoteFactory.create(
-      testUser.id,
-      "Test Personal note",
-      NoteCategory.PERSONAL
-    );
-
-    const workNote = NoteFactory.create(
-      testUser.id,
-      "Test Work note",
-      NoteCategory.WORK
-    );
-
-    await noteRepository.save(uncategorizedNote);
-    await noteRepository.save(personalNote);
-    await noteRepository.save(workNote);
+    await queryInterface.bulkInsert("notes", [
+      {
+        id: nanoid(),
+        author: testUser1.id,
+        content: "[Uncategorized] note by Test User 1",
+        createdOn: new Date(),
+        updatedOn: new Date(),
+        isDeleted: false,
+      },
+      {
+        id: nanoid(),
+        author: testUser1.id,
+        content: "Personal note by Test User 1",
+        createdOn: new Date(),
+        updatedOn: new Date(),
+        isDeleted: false,
+        category: NoteCategory.PERSONAL,
+      },
+      {
+        id: nanoid(),
+        author: testUser2.id,
+        content: "Personal note by Test User 2",
+        createdOn: new Date(),
+        updatedOn: new Date(),
+        isDeleted: false,
+        category: NoteCategory.PERSONAL,
+      },
+      {
+        id: nanoid(),
+        author: testUser1.id,
+        content: "Work note by Test User 1",
+        createdOn: new Date(),
+        updatedOn: new Date(),
+        isDeleted: false,
+        category: NoteCategory.WORK,
+      },
+    ]);
   } catch (error) {
     throw error;
   }
