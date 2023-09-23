@@ -43,7 +43,7 @@ async function seedTestUsers(sequelize) {
     {
       id: nanoid(),
       name: "Test User 2",
-      email: "testuser1@abc.com",
+      email: "testuser2@abc.com",
       password: "pass456",
     },
   ];
@@ -59,49 +59,45 @@ async function seedTestUsers(sequelize) {
  * @param {User[]} testUsers
  */
 async function seedTestUserNotes(sequelize, testUsers) {
-  try {
-    const [testUser1, testUser2] = testUsers;
+  const [testUser1, testUser2] = testUsers;
 
-    const queryInterface = sequelize.getQueryInterface();
+  const queryInterface = sequelize.getQueryInterface();
 
-    await queryInterface.bulkInsert("notes", [
-      {
-        id: nanoid(),
-        author: testUser1.id,
-        content: "[Uncategorized] note by Test User 1",
-        createdOn: new Date(),
-        updatedOn: new Date(),
-        isDeleted: false,
-      },
-      {
-        id: nanoid(),
-        author: testUser1.id,
-        content: "Personal note by Test User 1",
-        createdOn: new Date(),
-        updatedOn: new Date(),
-        isDeleted: false,
-        category: NoteCategory.PERSONAL,
-      },
-      {
-        id: nanoid(),
-        author: testUser2.id,
-        content: "Personal note by Test User 2",
-        createdOn: new Date(),
-        updatedOn: new Date(),
-        isDeleted: false,
-        category: NoteCategory.PERSONAL,
-      },
-      {
-        id: nanoid(),
-        author: testUser1.id,
-        content: "Work note by Test User 1",
-        createdOn: new Date(),
-        updatedOn: new Date(),
-        isDeleted: false,
-        category: NoteCategory.WORK,
-      },
-    ]);
-  } catch (error) {
-    throw error;
-  }
+  await queryInterface.bulkInsert("notes", [
+    {
+      id: nanoid(),
+      author: testUser1.id,
+      content: "[Uncategorized] note by Test User 1",
+      createdOn: new Date(),
+      updatedOn: new Date(),
+      isDeleted: false,
+    },
+    {
+      id: nanoid(),
+      author: testUser1.id,
+      content: "Personal note by Test User 1",
+      createdOn: new Date(),
+      updatedOn: new Date(),
+      isDeleted: false,
+      category: NoteCategory.PERSONAL,
+    },
+    {
+      id: nanoid(),
+      author: testUser2.id,
+      content: "Personal note by Test User 2",
+      createdOn: new Date(),
+      updatedOn: new Date(),
+      isDeleted: false,
+      category: NoteCategory.PERSONAL,
+    },
+    {
+      id: nanoid(),
+      author: testUser1.id,
+      content: "Work note by Test User 1",
+      createdOn: new Date(),
+      updatedOn: new Date(),
+      isDeleted: false,
+      category: NoteCategory.WORK,
+    },
+  ]);
 }
