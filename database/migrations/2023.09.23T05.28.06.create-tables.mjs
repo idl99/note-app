@@ -1,5 +1,5 @@
 import { Sequelize } from "sequelize";
-import { UserSchema } from "../../src/authentication/userModel.js";
+import { UserSchema } from "../../src/auth/userModel.js";
 import { NoteSchema } from "../../src/noteTaking/noteModel.js";
 
 /** @type {import('umzug').MigrationFn<{ sequelize: Sequelize }>} */

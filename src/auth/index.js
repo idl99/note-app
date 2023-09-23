@@ -1,6 +1,6 @@
 import AuthController from "./authController.js";
 import AuthGuard from "./authGuard.js";
-import { AuthenticationService } from "./authenticationService.js";
+import { AuthenticationService } from "./authService.js";
 import { UserRepository } from "./user.js";
 
 export default (ctx) => {

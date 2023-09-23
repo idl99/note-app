@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { AuthenticationService } from "./authenticationService.js";
+import { AuthenticationService } from "./authService.js";
 import ApiResponse from "../infra/apiResponse.js";
 
 export default class AuthController {

@@ -1,5 +1,5 @@
 import express from "express";
-import authenticationModule from "../authentication/index.js";
+import authenticationModule from "../auth/index.js";
 import noteTakingModule from "../noteTaking/index.js";
 import IoC from "./ioc.js";
 import customErrorMiddleware from "./errorMiddleware.js";

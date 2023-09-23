@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { NoteFactory, NoteRepository } from "./note.js";
 import ApiResponse from "../infra/apiResponse.js";
-import AuthGuard from "../authentication/authGuard.js";
+import AuthGuard from "../auth/authGuard.js";
 
 export default class NoteController {
   /**

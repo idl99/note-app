@@ -1,5 +1,5 @@
 import { BadRequestError, UnauthorizedError } from "../errors/errors.js";
-import { AuthenticationService } from "./authenticationService.js";
+import { AuthenticationService } from "./authService.js";
 
 export default class AuthGuard {
   /**

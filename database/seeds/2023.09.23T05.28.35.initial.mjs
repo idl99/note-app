@@ -1,5 +1,5 @@
 import { nanoid } from "nanoid";
-import { User, UserRepository } from "../../src/authentication/user.js";
+import { User, UserRepository } from "../../src/auth/user.js";
 import { NoteRepository, NoteCategory } from "../../src/noteTaking/note.js";
 import { Sequelize } from "sequelize";
 
