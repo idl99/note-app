@@ -1,3 +1,4 @@
+import * as bcrypt from "bcrypt";
 import { nanoid } from "nanoid";
 import { User, UserRepository } from "../../src/auth/user.js";
 import { NoteRepository, NoteCategory } from "../../src/noteTaking/note.js";
@@ -33,20 +34,28 @@ export const down = async ({ context: { database } }) => {
 async function seedTestUsers(sequelize) {
   const queryInterface = sequelize.getQueryInterface();
 
-  const testUsers = [
-    {
-      id: nanoid(),
-      name: "Test User 1",
-      email: "testuser1@abc.com",
-      password: "pass123",
-    },
-    {
-      id: nanoid(),
-      name: "Test User 2",
-      email: "testuser2@abc.com",
-      password: "pass456",
-    },
-  ];
+  const testUsers = await Promise.all([
+    (async () => {
+      const passwordHash = await bcrypt.hash("pass123", 10);
+
+      return {
+        id: nanoid(),
+        name: "Test User 1",
+        email: "testuser1@abc.com",
+        password: passwordHash,
+      };
+    })(),
+    (async () => {
+      const passwordHash = await bcrypt.hash("pass456", 10);
+
+      return {
+        id: nanoid(),
+        name: "Test User 2",
+        email: "testuser2@abc.com",
+        password: passwordHash,
+      };
+    })(),
+  ]);
 
   await queryInterface.bulkInsert("users", testUsers);
 
