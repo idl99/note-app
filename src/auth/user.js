@@ -1,6 +1,10 @@
 import * as bcrypt from "bcrypt";
 import { nanoid } from "nanoid";
-import { ConflictError, NotImplementedError } from "../errors/errors.js";
+import {
+  BadRequestError,
+  ConflictError,
+  NotImplementedError,
+} from "../errors/errors.js";
 import UserModel, { UserSchema } from "./userModel.js";
 import Database from "../infra/db.js";
 
@@ -69,7 +73,7 @@ export class UserRepository {
    * @return {Promise<User>} Returns the saved User object.
    */
   async save(aUser) {
-    await this.userModel.create({ ...aUser });
+    await this.userModel.upsert({ ...aUser });
 
     return aUser;
   }
@@ -89,6 +93,22 @@ export class UserFactory {
   }
 
   async create(name, email, password) {
+    // Doing manual validations in the interest of time, will add validation library and more validations later (e.g. Joi, zod, etc.)
+
+    if (!name) {
+      throw new BadRequestError("Name is required.");
+    }
+
+    if (!email) {
+      throw new BadRequestError("Email is required.");
+    }
+
+    if (!password) {
+      throw new BadRequestError("Password is required.");
+    }
+
+    // TODO email validation
+
     const doesUserExist = await this.userRepository.existsByEmail(email);
 
     if (doesUserExist) {
