@@ -34,7 +34,8 @@ export class AuthenticationService {
 
     return jwt.sign(
       { user: { id: user.id, name: user.name, email: user.email } },
-      process.env.TOKEN_SECRET
+      process.env.TOKEN_SECRET,
+      { expiresIn: "1h" }
     );
   }
 
