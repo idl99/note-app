@@ -40,8 +40,14 @@ export class UserRepository {
    * @param {string} email - The email of the user to find.
    * @return {Promise<User>} This function does not return anything.
    */
-  findByEmail(email) {
-    throw new NotImplementedError();
+  async findByEmail(email) {
+    const user = await this.userModel.findOne({ where: { email } });
+
+    if (!user) {
+      return null;
+    }
+
+    return new User(user.id, user.name, user.email, user.password);
   }
 
   /**

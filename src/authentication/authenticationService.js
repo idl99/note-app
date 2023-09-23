@@ -26,7 +26,7 @@ export class AuthenticationService {
       throw new UnauthorizedError("Invalid email or password.");
     }
 
-    const isVerified = await bcrypt.compare(user.email, password);
+    const isVerified = await bcrypt.compare(password, user.password);
 
     if (!isVerified) {
       throw new UnauthorizedError("Invalid email or password.");

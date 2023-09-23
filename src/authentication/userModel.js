@@ -1,8 +1,5 @@
 import { DataTypes, Model } from "sequelize";
 
-/**
- * @type {import("sequelize").ModelAttributes<UserModel>}
- */
 export const UserSchema = {
   id: {
     type: DataTypes.STRING,
@@ -23,4 +20,5 @@ export const UserSchema = {
   },
 };
 
+/** @type {import('sequelize').Model<import("sequelize").InferAttributes<UserSchema>, import("sequelize").InferAttributes<UserSchema>>} */
 export default class UserModel extends Model {}
