@@ -1,4 +1,5 @@
 import { DataTypes, Model } from "sequelize";
+import { CategorizedNote, Note } from "./note.js";
 
 /**
  * @type {import("sequelize").ModelAttributes<NoteModel>}
@@ -18,11 +19,15 @@ export const NoteSchema = {
     allowNull: false,
   },
   createdOn: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.DATE,
     allowNull: false,
   },
+  category: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   updatedOn: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.DATE,
     allowNull: false,
   },
   isDeleted: {
@@ -31,4 +36,32 @@ export const NoteSchema = {
   },
 };
 
-export default class NoteModel extends Model {}
+export class NoteModel extends Model {
+  /**
+   *
+   * @param {*} noteDTO
+   * @returns {Note}
+   */
+  static toEntity(noteDTO) {
+    if (noteDTO.category) {
+      return new CategorizedNote(
+        noteDTO.id,
+        noteDTO.author,
+        noteDTO.content,
+        noteDTO.createdOn,
+        noteDTO.updatedOn,
+        noteDTO.isDeleted,
+        noteDTO.category
+      );
+    }
+
+    return new Note(
+      noteDTO.id,
+      noteDTO.author,
+      noteDTO.content,
+      noteDTO.createdOn,
+      noteDTO.updatedOn,
+      noteDTO.isDeleted
+    );
+  }
+}

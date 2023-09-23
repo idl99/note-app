@@ -1,16 +1,14 @@
 import { nanoid } from "nanoid";
-import {
-  BadRequestError,
-  InternalServerError,
-  NotImplementedError,
-} from "../errors/errors.js";
+import { BadRequestError } from "../errors/errors.js";
+import Database from "../infra/db.js";
+import { NoteModel, NoteSchema } from "./noteModel.js";
 
-const NoteTypes = {
+export const NoteCategory = {
   PERSONAL: "PERSONAL",
   WORK: "WORK",
 };
 
-class Note {
+export class Note {
   static MAX_CONTENT_CHAR_LENGTH = 1000;
 
   /**
@@ -23,11 +21,6 @@ class Note {
    * @param {boolean} isDeleted
    */
   constructor(id, author, content, createdOn, updatedOn, isDeleted) {
-    if (new.target === Note) {
-      // To enforce that there can't be plain Note type objects, only concrete types (Personal, Work, etc.)
-      throw new InternalServerError("Cannot instantiate Note");
-    }
-
     this.id = id;
     this.author = author;
     this.content = content;
@@ -50,7 +43,7 @@ class Note {
   }
 }
 
-class PersonalNote extends Note {
+export class CategorizedNote extends Note {
   /**
    *
    * @param {string} id
@@ -59,26 +52,11 @@ class PersonalNote extends Note {
    * @param {number} createdOn
    * @param {number} updatedOn
    * @param {boolean} isDeleted
+   * @param {string} category
    */
-  constructor(id, author, content, createdOn, updatedOn, isDeleted) {
+  constructor(id, author, content, createdOn, updatedOn, isDeleted, category) {
     super(id, author, content, createdOn, updatedOn, isDeleted);
-    this.type = NoteTypes.PERSONAL;
-  }
-}
-
-class WorkNote extends Note {
-  /**
-   *
-   * @param {string} id
-   * @param {string} author
-   * @param {string} content
-   * @param {number} createdOn
-   * @param {number} updatedOn
-   * @param {boolean} isDeleted
-   */
-  constructor(id, author, content, createdOn, updatedOn, isDeleted) {
-    super(id, author, content, createdOn, updatedOn, isDeleted);
-    this.type = NoteTypes.WORK;
+    this.category = category;
   }
 }
 
@@ -103,38 +81,63 @@ export class NoteFactory {
     const formattedContent = Note.format(content);
 
     switch (type) {
-      case NoteTypes.PERSONAL:
-        return new PersonalNote(
+      case NoteCategory.PERSONAL:
+      case NoteCategory.WORK:
+        return new CategorizedNote(
           noteId,
           author,
           formattedContent,
           createdOn,
           createdOn,
-          false
-        );
-      case NoteTypes.WORK:
-        return new WorkNote(
-          noteId,
-          author,
-          formattedContent,
-          createdOn,
-          createdOn,
-          false
+          false,
+          type
         );
       default:
-        throw new BadRequestError("Invalid note type");
+        return new Note(
+          noteId,
+          author,
+          formattedContent,
+          createdOn,
+          createdOn,
+          false
+        );
     }
   }
 }
 
 export class NoteRepository {
-  constructor() {}
+  /**
+   *
+   * @param {Database} db
+   */
+  constructor(db) {
+    this._notesModel = NoteModel.init(NoteSchema, {
+      sequelize: db._sequelize,
+      modelName: "Note",
+      tableName: "notes",
+      timestamps: false,
+    });
+  }
+
+  async findAll(isDeleted = false) {
+    const noteDTOs = await this._notesModel.findAll({
+      where: { isDeleted },
+    });
+
+    return noteDTOs.map((noteDTO) => NoteModel.toEntity(noteDTO));
+  }
 
   /**
    *
-   * @param {Note} aNote
+   * @param {Note | CategorizedNote} aNote
    */
-  save(aNote) {
-    throw new NotImplementedError();
+  async save(aNote) {
+    return await this._notesModel.create({ ...aNote });
+  }
+
+  async delete(filter) {
+    await this._notesModel.destroy({ where: filter });
+
+    return;
   }
 }

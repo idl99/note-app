@@ -57,10 +57,15 @@ export default class NoteController {
 
     const savedNote = this.noteRepository.save(note);
 
-    return ApiResponse.with(req, res).body(savedNote).statusCode(200).send();
+    return ApiResponse.with(req, res).body(savedNote).statusCode(201).send();
   }
 
-  getNotes(req, res, next) {}
+  /**@type {import("express").RequestHandler} */
+  async getNotes(req, res, next) {
+    const notes = await this.noteRepository.findAll();
+
+    return ApiResponse.with(req, res).body(notes).send();
+  }
 
   getNote() {}
 
