@@ -28,7 +28,7 @@ export default class NoteController {
       authGuard.canAllow.bind(authGuard),
       this.getNote.bind(this)
     );
-    router.put(
+    router.patch(
       "/:noteId",
       authGuard.canAllow.bind(authGuard),
       this.updateNote.bind(this)
