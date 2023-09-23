@@ -3,12 +3,22 @@ import authenticationModule from "../authentication/index.js";
 import noteTakingModule from "../noteTaking/index.js";
 import IoC from "./ioc.js";
 import customErrorMiddleware from "./errorMiddleware.js";
+import Database from "./db.js";
 
-function startServer() {
+async function startServer() {
   const ioc = new IoC();
 
   const app = express();
-  ioc.register("app", app);
+  ioc.register("Application", app);
+
+  const db = await Database.createConnection(
+    process.env.DB_HOST,
+    process.env.DB_PORT,
+    process.env.DB_NAME,
+    process.env.DB_USER,
+    process.env.DB_PASS
+  );
+  ioc.register("Database", db);
 
   const port = process.env.PORT ?? 3000;
 

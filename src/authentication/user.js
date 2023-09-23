@@ -1,6 +1,8 @@
 import * as bcrypt from "bcrypt";
 import { nanoid } from "nanoid";
 import { ConflictError, NotImplementedError } from "../errors/errors.js";
+import UserModel, { UserSchema } from "./userModel.js";
+import Database from "../infra/db.js";
 
 export class User {
   /**
@@ -20,6 +22,19 @@ export class User {
 
 export class UserRepository {
   /**
+   *
+   * @param {Database} db
+   */
+  constructor(db) {
+    this.userModel = UserModel.init(UserSchema, {
+      sequelize: db._sequelize,
+      modelName: "User",
+      tableName: "users",
+      timestamps: false,
+    });
+  }
+
+  /**
    * Find a user by their email.
    *
    * @param {string} email - The email of the user to find.
@@ -32,11 +47,13 @@ export class UserRepository {
   /**
    * Check if a user with the given email exists.
    *
-   * @param {string} userId - The email of the user to check.
+   * @param {string} email - The email of the user to check.
    * @return {Promise<boolean>} Returns true if a user with the given email exists, false otherwise.
    */
-  existsByEmail(userId) {
-    throw new NotImplementedError();
+  async existsByEmail(email) {
+    return await this.userModel
+      .count({ where: { email } })
+      .then((count) => count > 0);
   }
 
   /**
@@ -45,8 +62,19 @@ export class UserRepository {
    * @param {User} user - The user object containing user information.
    * @return {Promise<User>} Returns the saved User object.
    */
-  save(user) {
-    throw new NotImplementedError();
+  async save(user) {
+    await this.userModel.create({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      password: user.password,
+    });
+
+    return user;
+  }
+
+  async delete(filter) {
+    return await this.userModel.destroy({ where: filter });
   }
 }
 
@@ -59,8 +87,8 @@ export class UserFactory {
     this.userRepository = userRepository;
   }
 
-  async create(id, name, email, password) {
-    const doesUserExist = await this.userRepository.existsByEmail(id);
+  async create(name, email, password) {
+    const doesUserExist = await this.userRepository.existsByEmail(email);
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -70,8 +98,6 @@ export class UserFactory {
 
     // TODO validate and sanitize name and password
 
-    const user = new User(nanoid(), name, email, hashedPassword);
-
-    return await this.userRepository.save(user);
+    return new User(nanoid(), name, email, hashedPassword);
   }
 }

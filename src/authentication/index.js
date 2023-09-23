@@ -3,7 +3,9 @@ import { AuthenticationService } from "./authenticationService.js";
 import { UserRepository } from "./user.js";
 
 export default (ctx) => {
-  const userRepository = new UserRepository();
+  const db = ctx.inject("Database");
+
+  const userRepository = new UserRepository(db);
   const authenticationService = new AuthenticationService(userRepository);
   const authGuard = new AuthGuard(authenticationService);
 
