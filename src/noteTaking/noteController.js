@@ -43,7 +43,7 @@ export default class NoteController {
 
     app.use("/notes", router);
 
-    this.noteRepository = noteRepository;
+    this._noteRepository = noteRepository;
     this._cache = cache;
   }
 
@@ -54,7 +54,7 @@ export default class NoteController {
 
       const note = NoteFactory.create(req.user.id, content, type);
 
-      await this.noteRepository.save(note);
+      await this._noteRepository.save(note);
 
       await this._cache.invalidate(`user:${req.user.id}:notes`);
 
@@ -76,7 +76,7 @@ export default class NoteController {
       }
 
       console.debug("Cache miss");
-      const notes = await this.noteRepository.findAll(req.user.id, false);
+      const notes = await this._noteRepository.findAll(req.user.id, false);
 
       await this._cache.set(cacheKey, notes);
 
@@ -88,7 +88,7 @@ export default class NoteController {
 
   async getNote(req, res, next) {
     try {
-      const note = await this.noteRepository.getNote(
+      const note = await this._noteRepository.getNote(
         req.params.noteId,
         req.user.id,
         false
@@ -102,7 +102,7 @@ export default class NoteController {
 
   async updateNote(req, res, next) {
     try {
-      const note = await this.noteRepository.getNote(
+      const note = await this._noteRepository.getNote(
         req.params.noteId,
         req.user.id,
         false
@@ -110,7 +110,7 @@ export default class NoteController {
 
       note.update(req.body.content);
 
-      await this.noteRepository.save(note);
+      await this._noteRepository.save(note);
 
       await this._cache.invalidate(`user:${req.user.id}:notes`);
 
@@ -122,12 +122,12 @@ export default class NoteController {
 
   async deleteNote(req, res, next) {
     try {
-      const note = await this.noteRepository.findNote(req.params.noteId);
+      const note = await this._noteRepository.findNote(req.params.noteId);
 
       if (note) {
         note.delete();
 
-        await this.noteRepository.save(note);
+        await this._noteRepository.save(note);
 
         await this._cache.invalidate(`user:${req.user.id}:notes`);
       }

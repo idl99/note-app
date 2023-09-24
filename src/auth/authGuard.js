@@ -7,7 +7,7 @@ export default class AuthGuard {
    * @param {AuthenticationService} authenticationService
    */
   constructor(authenticationService) {
-    this.authenticationService = authenticationService;
+    this._authenticationService = authenticationService;
   }
 
   /**
@@ -24,7 +24,7 @@ export default class AuthGuard {
     }
 
     try {
-      const payload = this.authenticationService.verify(token);
+      const payload = this._authenticationService.verify(token);
 
       req.user = payload.user;
 

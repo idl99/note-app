@@ -9,7 +9,7 @@ export class AuthenticationService {
    * @param {UserRepository} userRepository
    */
   constructor(userRepository) {
-    this.userRepository = userRepository;
+    this._userRepository = userRepository;
   }
 
   /**
@@ -20,7 +20,7 @@ export class AuthenticationService {
    * @return {Promise<string>} - A promise that resolves to a token representing the logged-in user.
    */
   async login(email, password) {
-    const user = await this.userRepository.findByEmail(email);
+    const user = await this._userRepository.findByEmail(email);
 
     if (!user) {
       throw new UnauthorizedError("Invalid email or password.");

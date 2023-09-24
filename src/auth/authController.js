@@ -19,20 +19,20 @@ export default class AuthController {
 
     app.use("/users", router);
 
-    this.userFactory = userFactory;
-    this.userRepository = userRepository;
-    this.authenticationService = authenticationService;
+    this._userFactory = userFactory;
+    this._userRepository = userRepository;
+    this._authenticationService = authenticationService;
   }
 
   async register(req, res, next) {
     try {
-      const user = await this.userFactory.create(
+      const user = await this._userFactory.create(
         req.body.name,
         req.body.email,
         req.body.password
       );
 
-      await this.userRepository.save(user);
+      await this._userRepository.save(user);
 
       const { password: userPassword, ...nonSensitizedUserObject } = user;
 
@@ -51,7 +51,7 @@ export default class AuthController {
    */
   async login(req, res, next) {
     try {
-      const token = await this.authenticationService.login(
+      const token = await this._authenticationService.login(
         req.body.email,
         req.body.password
       );

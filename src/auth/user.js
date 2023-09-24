@@ -1,10 +1,6 @@
 import * as bcrypt from "bcrypt";
 import { nanoid } from "nanoid";
-import {
-  BadRequestError,
-  ConflictError,
-  NotImplementedError,
-} from "../errors/errors.js";
+import { BadRequestError, ConflictError } from "../errors/errors.js";
 import UserModel, { UserSchema } from "./userModel.js";
 import Database from "../infra/db.js";
 
@@ -30,7 +26,7 @@ export class UserRepository {
    * @param {Database} db
    */
   constructor(db) {
-    this.userModel = UserModel.init(UserSchema, {
+    this._userModel = UserModel.init(UserSchema, {
       sequelize: db._sequelize,
       modelName: "User",
       tableName: "users",
@@ -45,7 +41,7 @@ export class UserRepository {
    * @return {Promise<User>} This function does not return anything.
    */
   async findByEmail(email) {
-    const user = await this.userModel.findOne({ where: { email } });
+    const user = await this._userModel.findOne({ where: { email } });
 
     if (!user) {
       return null;
@@ -61,7 +57,7 @@ export class UserRepository {
    * @return {Promise<boolean>} Returns true if a user with the given email exists, false otherwise.
    */
   async existsByEmail(email) {
-    return await this.userModel
+    return await this._userModel
       .count({ where: { email } })
       .then((count) => count > 0);
   }
@@ -73,13 +69,13 @@ export class UserRepository {
    * @return {Promise<User>} Returns the saved User object.
    */
   async save(aUser) {
-    await this.userModel.upsert({ ...aUser });
+    await this._userModel.upsert({ ...aUser });
 
     return aUser;
   }
 
   async delete(filter) {
-    return await this.userModel.destroy({ where: filter });
+    return await this._userModel.destroy({ where: filter });
   }
 }
 
@@ -89,7 +85,7 @@ export class UserFactory {
    * @param {UserRepository} userRepository
    */
   constructor(userRepository) {
-    this.userRepository = userRepository;
+    this._userRepository = userRepository;
   }
 
   async create(name, email, password) {
@@ -109,7 +105,7 @@ export class UserFactory {
 
     // TODO email validation
 
-    const doesUserExist = await this.userRepository.existsByEmail(email);
+    const doesUserExist = await this._userRepository.existsByEmail(email);
 
     if (doesUserExist) {
       throw new ConflictError("User exists for given email.");
