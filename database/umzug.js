@@ -8,11 +8,11 @@ const { Umzug, SequelizeStorage } = require("umzug");
 const { DataTypes } = require("sequelize");
 
 const db = await Database.createConnection(
-  process.env.DB_HOST,
-  process.env.DB_PORT,
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASS
+  process.env.MYSQL_HOST,
+  process.env.MYSQL_PORT,
+  process.env.MYSQL_DATABASE,
+  process.env.MYSQL_USER,
+  process.env.MYSQL_PASSWORD
 );
 
 export const migrator = new Umzug({
