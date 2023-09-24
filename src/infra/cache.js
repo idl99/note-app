@@ -6,7 +6,7 @@ export default class Cache {
   /**
    * @type {Cache}
    */
-  static __instance;
+  static _instance;
 
   /**
    *
@@ -33,8 +33,8 @@ export default class Cache {
   }
 
   static async getInstance(host, port) {
-    if (Cache.__instance) {
-      return Cache.__instance;
+    if (Cache._instance) {
+      return Cache._instance;
     }
 
     const client = redis.createClient({
@@ -43,8 +43,8 @@ export default class Cache {
 
     await client.connect();
 
-    Cache.__instance = new Cache(client);
+    Cache._instance = new Cache(client);
 
-    return Cache.__instance;
+    return Cache._instance;
   }
 }
