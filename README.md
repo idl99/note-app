@@ -46,13 +46,13 @@ You can explore the API using Postman. There is a Postman collection called [`no
 
 Pretty simple and straightforward just like the app and it's features :)
 
-![Domain model](.\docs\images\domain_model.jpg)
+![Domain Model](https://github.com/idl99/note-app/assets/27432836/7b4ea9bd-5343-49de-a1cc-b79ea00a7d0f)
 
 You might wonder why I don't have an aggregation/dependency between the Note and User entity? I have considered them as two different "Aggregates". If you're unfamiliar about Aggregate Roots, you can read more [here](https://martinfowler.com/bliki/DDD_Aggregate.html). By considering them as separate aggregates, I eliminate any transactional dependency between the two entity types. There is a "weak reference" from `User` to `Note`, as the `note.author` field corresponds to `user.id`.
 
 ### ERD
 
-![ERD](.\docs\images\erd.jpg)
+![ERD](https://github.com/idl99/note-app/assets/27432836/c90e7988-8a1b-4180-829b-e497e69760c4)
 
 As explained earlier there is no one-to-many relationship between `users` and `notes` intentionally. This allows us to store notes and users in separate schemas, database servers or even database types (e.g. NoSQL) because there is no transactional dependency or strong consistency constraints between them. However, like the domain model there is a "weak reference" between the `users` and `notes` records, on the `author` column of the `notes` relation.
 
