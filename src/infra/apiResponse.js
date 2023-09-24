@@ -47,7 +47,7 @@ export default class ApiResponse {
   send() {
     let responsePayload = this._body;
 
-    if (this._body.isError) {
+    if (this._body?.isError) {
       const { isError, ...error } = this._body;
       responsePayload = { error };
     } else {
