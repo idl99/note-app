@@ -32,12 +32,14 @@ export default class Cache {
     return await this._client.del(key);
   }
 
-  static async getInstance(options) {
+  static async getInstance(host, port) {
     if (Cache.instance) {
       return Cache.instance;
     }
 
-    const client = redis.createClient(options);
+    const client = redis.createClient({
+      url: `redis://${host}:${port}`,
+    });
 
     await client.connect();
 

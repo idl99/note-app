@@ -21,10 +21,10 @@ async function startServer() {
   );
   ioc.register("Database", db);
 
-  const cache = await Cache.getInstance({
-    host: process.env.REDIS_HOST,
-    port: process.env.REDIS_PORT,
-  });
+  const cache = await Cache.getInstance(
+    process.env.REDIS_HOST,
+    process.env.REDIS_PORT
+  );
   ioc.register("Cache", cache);
 
   const port = process.env.PORT ?? 3000;
@@ -44,7 +44,7 @@ async function startServer() {
   app.use(customErrorMiddleware);
 
   app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+    console.log(`Server listening on port ${port}`);
   });
 }
 
