@@ -30,7 +30,7 @@ You can clone the repo and run it in any of the following ways:
 
 - Run it as a standalone application locally on the CLI
 
-  You need to have your own MySQL and Redis servers running locally. A sample .env file is included in the repo which you may duplicated it and replace with the correct configuration values.
+  You need to have your own MySQL and Redis servers running locally. A [sample .env](.sample.env) file is included in the repo which you may duplicated it and replace with the correct configuration values.
 
 - You can build and run the application as a Docker container
 
@@ -38,7 +38,7 @@ You can clone the repo and run it in any of the following ways:
 
 ## Explore the API
 
-You can explore the API using Postman. There is a Postman collection called `note-app.postman_collection.json` in the `api-docs` folder that you can import in Postman and run requests. Additionally, there are 2 collection variables, `BASE_URL` and `AUTH_TOKEN` that makes it easier to share these configurations across requests. You can edit them as necessary.
+You can explore the API using Postman. There is a Postman collection called [`note-app.postman_collection.json`](api-docs/note-app.postman_collection.json) in the `api-docs` folder that you can import in Postman and run requests. Additionally, there are 2 collection variables, `BASE_URL` and `AUTH_TOKEN` that makes it easier to share these configurations across requests. You can edit them as necessary.
 
 ## Design
 
@@ -64,6 +64,14 @@ You might also wonder why I don't have a `note` and `categorized_notes` table, t
 - As mentioned in the article above, relational databases don't inherently support inheritance.
 - Sequelize [doesn't support the Multi Table inheritance pattern](https://github.com/sequelize/sequelize/issues/10039) unlike some other popular ORM libraries elsewhere like Hibernate. They have [introduced Concrete Table inheritance starting from Sequelize v7](https://github.com/sequelize/sequelize/issues/6502), but v7 is currently in alpha and not stable at the time of writing. Therefore, this application had to be built using Sequelize v6 and Single Table inheritance.
 
+Additionally, the `migration_meta` and `seeder_meta` are tables managed by a tool called [`umzug`](https://www.npmjs.com/package/umzug) that I have used to managed database migrations.
+
+#### Database indexes
+
+- `notes` table - `author` field since we frequently query notes by author.
+
+- `users` table - `email` field since we frequently query user by email.
+
 ### Code organization
 
 The code has been organized following the [Vertical Slice architecture](https://www.jimmybogard.com/vertical-slice-architecture/) and [Screaming architecture](https://blog.cleancoder.com/uncle-bob/2011/09/30/Screaming-Architecture.html). Notice how `src` folder is organized around subdomains like Note taking and Authentication instead of services, controllers and repositories? Vertical Slice architecture was adopted instead of Clean or Hexagonal architecture since it is less rigid and allows faster development while maintaining reasonable level of cohesion and decoupling. However, the code also follows the Controller-Service-Repository pattern found in popular frameworks like Nest.js, Spring Boot, etc. to achieve clean separation of concerns.
@@ -72,12 +80,15 @@ The code has been organized following the [Vertical Slice architecture](https://
 
 #### Design patterns
 
-- Dependency injection: I have implemented by own simple implementation of Dependency injection and Inversion of Control (IoC) container. Check the `src/infra/ioc.js`, `src/infra/server.js` and `src/noteTaking/index.js` for how it has been implemented and used. The main reason why I chose to implement it is to make the code testable in future with unit and integration tests. In a real-world project I would use a DI using a framework/library like Nest.js or inversify instead of my own implementation.
-- Factory pattern: classes like `NoteFactory` and `UserFactory` are used to create domain entities like Note and User. They are used to perform business validations before entity creation, and to abstract away the logic of instantiating different entity types (e.g. instantiating a Note vs. CategorizedNote).
+- Dependency injection: I have implemented by own simple implementation of Dependency injection and Inversion of Control (IoC) container. Check the [`src/infra/ioc.js`](src\infra\ioc.js), [`src/infra/server.js`](src\infra\server.js) and [`src/noteTaking/index.js`](src\noteTaking\index.js) for how it has been implemented and used. The main reason why I chose to implement it is to make the code testable in future with unit and integration tests. In a real-world project I would use a DI using a framework/library like Nest.js or inversify instead of my own implementation.
+- Factory pattern: in [`src/noteTaking/note.js`](src/noteTaking/note.js) and [`src/auth/user.js`](src/auth/user.js) for classes like `NoteFactory` and `UserFactory` are used to create domain entities like Note and User. They are used to perform business validations before entity creation, and to abstract away the logic of instantiating different entity types (e.g. instantiating a Note vs. CategorizedNote).
 - Singleton pattern: classes like `Cache` and `Logger` implement the singleton pattern to ensure only one instance of theirs is used across the application.
+- Builder pattern: it is used in the `ApiResponse` class in [`src/infra/apiResponse.js`](src\infra\apiResponse.js) to dynamically and programatically build the API response.
+- Middleware pattern: in [`src/auth/authGuard.js`](src\auth\authGuard.js) to implement a middleware that verifies authenticated requests in routes where necessary, and in [`src/infra/errorMiddleware.js`](src\infra\errorMiddleware.js) for custom error handling.
 
-### Other considerations
+### Other considerations/feature
 
+- Database migrations and seed data using [umzug](https://www.npmjs.com/package/umzug), a companion library of Sequelize.
 - I have used arbitrarily generated IDs as the unique identifiers for entity types with the idea of concealing database level IDs from external use. For speed of development, I ended using them as the primary IDs but the next step would be to introduce another primary ID field for the entities and use the current id values as a candidate/alternate key.
 
 ## Future improvements
