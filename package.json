@@ -20,6 +20,7 @@
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.6.1",
     "nanoid": "^5.0.1",
+    "redis": "^4.6.10",
     "sequelize": "^6.33.0"
   },
   "devDependencies": {

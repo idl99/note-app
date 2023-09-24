@@ -2,6 +2,7 @@ import { Router } from "express";
 import { NoteFactory, NoteRepository } from "./note.js";
 import ApiResponse from "../infra/apiResponse.js";
 import AuthGuard from "../auth/authGuard.js";
+import Cache from "../infra/cache.js";
 
 export default class NoteController {
   /**
@@ -9,8 +10,9 @@ export default class NoteController {
    * @param {import('express').Application} app
    * @param {AuthGuard} authGuard
    * @param {NoteRepository} noteRepository
+   * @param {Cache} cache
    */
-  constructor(app, authGuard, noteRepository) {
+  constructor(app, authGuard, noteRepository, cache) {
     const router = Router();
 
     router.post(
@@ -42,6 +44,7 @@ export default class NoteController {
     app.use("/notes", router);
 
     this.noteRepository = noteRepository;
+    this._cache = cache;
   }
 
   /**@type {import("express").RequestHandler} */
@@ -53,6 +56,8 @@ export default class NoteController {
 
       await this.noteRepository.save(note);
 
+      await this._cache.invalidate(`user:${req.user.id}:notes`);
+
       return ApiResponse.with(req, res).body(note).statusCode(201).send();
     } catch (error) {
       next(error);
@@ -62,7 +67,18 @@ export default class NoteController {
   /**@type {import("express").RequestHandler} */
   async getNotes(req, res, next) {
     try {
+      const cacheKey = `user:${req.user.id}:notes`;
+
+      const cachedValue = await this._cache.get(cacheKey);
+      if (cachedValue) {
+        console.debug("Cache hit");
+        return ApiResponse.with(req, res).body(cachedValue).send();
+      }
+
+      console.debug("Cache miss");
       const notes = await this.noteRepository.findAll(req.user.id, false);
+
+      await this._cache.set(cacheKey, notes);
 
       return ApiResponse.with(req, res).body(notes).send();
     } catch (error) {
@@ -96,6 +112,8 @@ export default class NoteController {
 
       await this.noteRepository.save(note);
 
+      await this._cache.invalidate(`user:${req.user.id}:notes`);
+
       return ApiResponse.with(req, res).body(note).send();
     } catch (error) {
       next(error);
@@ -108,9 +126,11 @@ export default class NoteController {
 
       if (note) {
         note.delete();
-      }
 
-      await this.noteRepository.save(note);
+        await this.noteRepository.save(note);
+
+        await this._cache.invalidate(`user:${req.user.id}:notes`);
+      }
 
       return ApiResponse.with(req, res).statusCode(204).send();
     } catch (error) {

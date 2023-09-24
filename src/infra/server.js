@@ -4,6 +4,7 @@ import noteTakingModule from "../noteTaking/index.js";
 import IoC from "./ioc.js";
 import customErrorMiddleware from "./errorMiddleware.js";
 import Database from "./db.js";
+import Cache from "./cache.js";
 
 async function startServer() {
   const ioc = new IoC();
@@ -19,6 +20,12 @@ async function startServer() {
     process.env.MYSQL_PASSWORD
   );
   ioc.register("Database", db);
+
+  const cache = await Cache.getInstance({
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT,
+  });
+  ioc.register("Cache", cache);
 
   const port = process.env.PORT ?? 3000;
 
