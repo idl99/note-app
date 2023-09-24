@@ -16,8 +16,8 @@ export class Note {
    * @param {string} id
    * @param {string} author
    * @param {string} content
-   * @param {number} createdOn
-   * @param {number} updatedOn
+   * @param {Date} createdOn
+   * @param {Date} updatedOn
    * @param {boolean} isDeleted
    */
   constructor(id, author, content, createdOn, updatedOn, isDeleted) {
@@ -35,7 +35,7 @@ export class Note {
 
   update(newContent) {
     this.content = Note.format(newContent);
-    this.updatedOn = Date.now();
+    this.updatedOn = new Date();
   }
 
   delete() {
@@ -49,8 +49,8 @@ export class CategorizedNote extends Note {
    * @param {string} id
    * @param {string} author
    * @param {string} content
-   * @param {number} createdOn
-   * @param {number} updatedOn
+   * @param {Date} createdOn
+   * @param {Date} updatedOn
    * @param {boolean} isDeleted
    * @param {string} category
    */
@@ -77,7 +77,7 @@ export class NoteFactory {
     }
 
     const noteId = nanoid();
-    const createdOn = Date.now();
+    const createdOn = new Date();
     const formattedContent = Note.format(content);
 
     switch (type) {
