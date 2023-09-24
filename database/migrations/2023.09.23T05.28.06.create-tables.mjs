@@ -5,7 +5,9 @@ import { NoteSchema } from "../../src/noteTaking/noteModel.js";
 /** @type {import('umzug').MigrationFn<{ sequelize: Sequelize }>} */
 export const up = async ({ context: { sequelize } }) => {
   await sequelize.getQueryInterface().createTable("notes", NoteSchema);
+  await sequelize.getQueryInterface().addIndex("notes", { fields: ["author"] });
   await sequelize.getQueryInterface().createTable("users", UserSchema);
+  await sequelize.getQueryInterface().addIndex("users", { fields: ["email"] });
 
   return;
 };
