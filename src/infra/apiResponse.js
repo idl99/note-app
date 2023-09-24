@@ -47,11 +47,16 @@ export default class ApiResponse {
   send() {
     let responsePayload = this._body;
 
-    if (this._request.method === "GET") {
-      responsePayload = { data: this._body };
+    if (this._body.isError) {
+      const { isError, ...error } = this._body;
+      responsePayload = { error };
+    } else {
+      if (this._request.method === "GET") {
+        responsePayload = { data: this._body };
 
-      if (Array.isArray(this._body)) {
-        responsePayload.count = this._body.length;
+        if (Array.isArray(this._body)) {
+          responsePayload.count = this._body.length;
+        }
       }
     }
 
