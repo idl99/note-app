@@ -34,7 +34,7 @@ export class AuthenticationService {
 
     return jwt.sign(
       { user: { id: user.id, name: user.name, email: user.email } },
-      process.env.TOKEN_SECRET,
+      process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
   }
@@ -46,6 +46,6 @@ export class AuthenticationService {
    * @throws {UnauthorizedError} If the token is invalid.
    */
   verify(token) {
-    return jwt.verify(token, process.env.TOKEN_SECRET);
+    return jwt.verify(token, process.env.JWT_SECRET);
   }
 }
