@@ -3,16 +3,18 @@ import { NoteFactory, NoteRepository } from "./note.js";
 import ApiResponse from "../infra/apiResponse.js";
 import AuthGuard from "../auth/authGuard.js";
 import Cache from "../infra/cache.js";
+import Logger from "../infra/logger.js";
 
 export default class NoteController {
   /**
    *
    * @param {import('express').Application} app
+   * @param {Logger} logger
    * @param {AuthGuard} authGuard
    * @param {NoteRepository} noteRepository
    * @param {Cache} cache
    */
-  constructor(app, authGuard, noteRepository, cache) {
+  constructor(app, logger, authGuard, noteRepository, cache) {
     const router = Router();
 
     router.post(
@@ -43,6 +45,7 @@ export default class NoteController {
 
     app.use("/notes", router);
 
+    this._logger = logger;
     this._noteRepository = noteRepository;
     this._cache = cache;
   }
@@ -71,11 +74,11 @@ export default class NoteController {
 
       const cachedValue = await this._cache.get(cacheKey);
       if (cachedValue) {
-        console.debug("Cache hit");
+        this._logger.debug("Cache hit");
         return ApiResponse.with(req, res).body(cachedValue).send();
       }
 
-      console.debug("Cache miss");
+      this._logger.debug("Cache miss");
       const notes = await this._noteRepository.findAll(req.user.id, false);
 
       await this._cache.set(cacheKey, notes);

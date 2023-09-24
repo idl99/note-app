@@ -10,11 +10,21 @@ export default class Database {
     this._sequelize = sequelize;
   }
 
-  static async createConnection(host, port, database, username, password) {
+  static async createConnection(
+    host,
+    port,
+    database,
+    username,
+    password,
+    logger
+  ) {
     const sequelize = new Sequelize(database, username, password, {
       host,
       port,
       dialect: "mysql",
+      logging: logger
+        ? (sql, timing) => logger.debug(sql, timing)
+        : console.log,
     });
 
     await sequelize.authenticate();

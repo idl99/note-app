@@ -5,9 +5,13 @@ import IoC from "./ioc.js";
 import customErrorMiddleware from "./errorMiddleware.js";
 import Database from "./db.js";
 import Cache from "./cache.js";
+import Logger from "./logger.js";
 
 async function startServer() {
   const ioc = new IoC();
+
+  const logger = Logger.createLogger();
+  ioc.register("Logger", logger);
 
   const app = express();
   ioc.register("Application", app);
@@ -17,7 +21,8 @@ async function startServer() {
     process.env.MYSQL_PORT,
     process.env.MYSQL_DATABASE,
     process.env.MYSQL_USER,
-    process.env.MYSQL_PASSWORD
+    process.env.MYSQL_PASSWORD,
+    logger
   );
   ioc.register("Database", db);
 
@@ -44,7 +49,7 @@ async function startServer() {
   app.use(customErrorMiddleware);
 
   app.listen(port, () => {
-    console.log(`Server listening on port ${port}`);
+    logger.info(`Server listening on port ${port}`);
   });
 }
 
