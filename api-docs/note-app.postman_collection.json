@@ -107,7 +107,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Ihan\",\r\n    \"email\": \"ihan@software.dev\",\r\n    \"password\": \"ihan123\"\r\n}",
+							"raw": "{\r\n    \"name\": \"Ihan\",\r\n    \"email\": \"testuser3@abc.com\",\r\n    \"password\": \"pass789\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -133,7 +133,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"Ihan\",\r\n    \"email\": \"ihan@software.dev\",\r\n    \"password\": \"ihan123\"\r\n}",
+									"raw": "{\r\n    \"name\": \"Ihan\",\r\n    \"email\": \"testuser3@abc.com\",\r\n    \"password\": \"pass789\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -185,7 +185,7 @@
 								}
 							],
 							"cookie": [],
-							"body": "{\n    \"id\": \"gcoReBT9idjX8_SuN2E1H\",\n    \"name\": \"Ihan\",\n    \"email\": \"ihan@software.dev\"\n}"
+							"body": "{\n    \"id\": \"gcoReBT9idjX8_SuN2E1H\",\n    \"name\": \"Ihan\",\n    \"email\": \"testuser3@abc.com\"\n}"
 						},
 						{
 							"name": "409 Conflict",
@@ -194,7 +194,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"Ihan\",\r\n    \"email\": \"ihan@software.dev\",\r\n    \"password\": \"ihan123\"\r\n}",
+									"raw": "{\r\n    \"name\": \"Ihan\",\r\n    \"email\": \"testuser3@abc.com\",\r\n    \"password\": \"pass789\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
